@@ -44,9 +44,9 @@ namespace Test
             //testsApiNLU(nluElement);
             SpeechToText();
             //RecordAndPlayAudio();
-            //DBManagement DB = new DBManagement();
+            DBManagement DB = new DBManagement();
             //DB.AddUserLog("first test");
-
+            Console.WriteLine("Dernière transcription: " + DB.LastVoiceTranscript());
             Console.ReadKey();
         }
 
@@ -57,12 +57,14 @@ namespace Test
         {
             Credentials cred = new Credentials();
             IamTokenData token = GetIAMToken(cred.STTApiKey);
+            
             WebSocketTest(token);
+            
         }
 
 
         static ArraySegment<byte> openingMessage = new ArraySegment<byte>(Encoding.UTF8.GetBytes(
-            "{\"action\": \"start\", \"content-type\": \"audio/wav\", \"continuous\" : true, \"interim_results\": true}"
+            "{\"action\": \"start\", \"content-type\": \"audio/wav\"}"
         ));
         static ArraySegment<byte> closingMessage = new ArraySegment<byte>(Encoding.UTF8.GetBytes(
             "{\"action\": \"stop\"}"
@@ -170,12 +172,14 @@ namespace Test
                 // see ServiceState and IsDelimeter for a light-weight example of that.
                 Console.WriteLine(message);
 
-                
 
-                /*
-                DBManagement db = new DBManagement();
-                db.AddRequestHistory(message);
-                */
+                string listeningMessage = "{\n   \"state\": \"listening\"\n}";
+                if (message!=listeningMessage)
+                {
+                    getText(message);
+                    DBManagement db = new DBManagement();
+                    db.AddRequestHistory(message);
+                }
 
                 if (IsDelimeter(message))
                 {
@@ -183,21 +187,25 @@ namespace Test
                 }
             }
         }
-
-        /*
-        static void STTAnswer(String json)
+        
+        static async void getText(String message)
         {
-            try
+            int Start, End;
+            string strStart = "transcript\": \"";
+            string strEnd = "\"\n            }\n         ], \n         \"fin";
+            if(message.Contains(strStart) && message.Contains(strEnd))
             {
-                STTJson answer = JsonConvert.DeserializeObject<STTJson>(json);
-                Console.WriteLine(answer.results);
+                Console.WriteLine("GOOD");
+                Start = message.IndexOf(strStart, 0) + strStart.Length;
+                End = message.IndexOf(strEnd, Start);
+                //Console.WriteLine(message.Substring(Start, End - Start));
+                string answer = message.Substring(Start, End - Start);
+                DBManagement dB = new DBManagement();
+                dB.AddVoiceTranscript(answer);
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            
+            
         }
-        */
 
         [DataContract]
         internal class ServiceState
@@ -212,49 +220,6 @@ namespace Test
             ServiceState obj = (ServiceState)ser.ReadObject(stream);
             return obj.state == "listening";
         }
-        
-
-
-        /*
-        static  void SpeechToText() //A terminer
-        {
-            SpeechToTextService STTService = new SpeechToTextService();
-            STTService = SetupSTT(STTService);
-            Console.WriteLine("Language of the file:");
-            Console.WriteLine("1. fr-FR_BroadbandModel");
-            Console.WriteLine("2. en-US_BroadbandModel");
-            Console.WriteLine("3. ja-JP_BroadbandModel");
-            int caseSwitch = 0;
-            while(caseSwitch==0)
-            {
-                try
-                {
-                    caseSwitch = Convert.ToInt32(Console.ReadLine());
-                }
-                catch(Exception e)
-                {
-
-                }
-            }
-            switch(caseSwitch)
-            {
-                case 1: var session = STTService.CreateSession("en-US_BroadbandModel");
-                    break;
-
-            }
-            
-        }
-
-        static SpeechToTextService SetupSTT(SpeechToTextService STTService) //A terminer
-        {
-            TokenOptions connectorSTT = new TokenOptions();
-            connectorSTT.IamApiKey = "gm7GT16FTkQ2-yp1vfHSbeqpFPS0xv3uI_w02HoWstOQ";
-            connectorSTT.ServiceUrl = "https://gateway-syd.watsonplatform.net/speech-to-text/api";
-            STTService = new SpeechToTextService();
-            STTService.SetCredential(connectorSTT);
-            return STTService;
-        }
-        */
         #endregion
 
         #region Natural Language Understanding

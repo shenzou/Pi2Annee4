@@ -126,6 +126,55 @@ namespace Test
                 Console.WriteLine("Erreur avec la base de données. Historique non ajouté.");
             }
         }
+
+        public void AddVoiceTranscript(string text)
+        {
+            try
+            {
+                string dateTime = DateTime.Now.ToString("yyyy-MM-dd hh");
+                OpenConnection();
+                string request = "INSERT INTO PI2.voicetranscripted(text, date) VALUES('" + text + "','" + dateTime + "'); ";
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = request;
+                MySqlDataReader reader;
+                reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    Console.WriteLine(reader.GetString(0));
+                }
+                else Console.WriteLine("Transcription de voix ajoutée.");
+                connection.Close();
+            }
+            catch
+            {
+                Console.WriteLine("Erreur avec la base de données. Transcription non ajoutée.");
+            }
+        }
+
+        public string LastVoiceTranscript()
+        {
+            OpenConnection();
+            string request = "SELECT text FROM voicetranscripted WHERE id=(SELECT MAX(id) FROM voicetranscripted);";
+            MySqlCommand command = connection.CreateCommand();
+            command.CommandText = request;
+
+            MySqlDataReader reader;
+            reader = command.ExecuteReader();
+            string text = "";
+            while(reader.Read())
+            {
+                try
+                {
+                    text = reader.GetString(0);
+                }
+                catch
+                {
+                    Console.WriteLine("Erreur lors de la lecture du dernier élement.");
+                }
+            }
+            return text;
+        }
+
         //Count statement
         public int Count()
         {

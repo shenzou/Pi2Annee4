@@ -12,6 +12,6 @@ namespace Test
             public string Email { get; set; }
             public bool Active { get; set; }
             public DateTime CreatedDate { get; set; }
-            public IList<string> results { get; set; }
+            public IList<object> results { get; set; }
     }
 }
