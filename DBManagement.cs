@@ -104,6 +104,28 @@ namespace Test
             }
         }
 
+        public void AddRequestHistory(string json)
+        {
+            try
+            {
+                OpenConnection();
+                string request = "INSERT INTO PI2.historyrequest(json) VALUES('" + json + "'); ";
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = request;
+                MySqlDataReader reader;
+                reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    Console.WriteLine(reader.GetString(0));
+                }
+                else Console.WriteLine("Historique ajouté.");
+                connection.Close();
+            }
+            catch
+            {
+                Console.WriteLine("Erreur avec la base de données. Historique non ajouté.");
+            }
+        }
         //Count statement
         public int Count()
         {

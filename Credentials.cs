@@ -16,6 +16,7 @@ namespace Test
         public string DBPassword;
         public string DBConnection;
         public string Dbport;
+        public string STTApiKey;
 
         public Credentials()
         {
@@ -29,6 +30,7 @@ namespace Test
             DBPassword = data[1][4];
             DBConnection = data[1][5];
             Dbport = data[1][6];
+            STTApiKey = data[1][7];
         }
 
 

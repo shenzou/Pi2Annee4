@@ -28,6 +28,7 @@ namespace Test
 {
     class Program
     {
+        
         [DllImport("winmm.dll", EntryPoint = "mciSendStringA", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)] //Windows Multimedia API
         private static extern int mciSendString(string lpstrCommand, string lpstrReturnString, int uReturnLength, int hwndCallback);
         //Packages à installer via NuGet
@@ -40,11 +41,11 @@ namespace Test
         {
             
             NLU nluElement = SetupNLU();
-            testsApiNLU(nluElement);
-            //SpeechToText();
+            //testsApiNLU(nluElement);
+            SpeechToText();
             //RecordAndPlayAudio();
-            DBManagement DB = new DBManagement();
-            DB.AddUserLog("first test");
+            //DBManagement DB = new DBManagement();
+            //DB.AddUserLog("first test");
 
             Console.ReadKey();
         }
@@ -54,7 +55,8 @@ namespace Test
 
         static void SpeechToText()
         {
-            IamTokenData token = GetIAMToken("gm7GT16FTkQ2-yp1vfHSbeqpFPS0xv3uI_w02HoWstOQ");
+            Credentials cred = new Credentials();
+            IamTokenData token = GetIAMToken(cred.STTApiKey);
             WebSocketTest(token);
         }
 
@@ -95,7 +97,7 @@ namespace Test
             ClientWebSocket clientWebSocket = new ClientWebSocket();
             clientWebSocket.Options.Proxy = null;
             clientWebSocket.Options.SetRequestHeader("Authorization", $"Bearer {token.AccessToken}");
-            Uri connection = new Uri($"wss://gateway-syd.watsonplatform.net/text-to-speech/api/v1/synthesize");
+            Uri connection = new Uri($"wss://gateway-syd.watsonplatform.net/speech-to-text/api/v1/recognize");
             try
             {
                 await clientWebSocket.ConnectAsync(connection, cts.Token);
@@ -115,6 +117,8 @@ namespace Test
 
             // close down the websocket
             clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Close", CancellationToken.None).Wait();
+
+            
         }
 
         static async Task SendAudio(ClientWebSocket ws)
@@ -166,12 +170,34 @@ namespace Test
                 // see ServiceState and IsDelimeter for a light-weight example of that.
                 Console.WriteLine(message);
 
+                
+
+                /*
+                DBManagement db = new DBManagement();
+                db.AddRequestHistory(message);
+                */
+
                 if (IsDelimeter(message))
                 {
                     return;
                 }
             }
         }
+
+        /*
+        static void STTAnswer(String json)
+        {
+            try
+            {
+                STTJson answer = JsonConvert.DeserializeObject<STTJson>(json);
+                Console.WriteLine(answer.results);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+        */
 
         [DataContract]
         internal class ServiceState
@@ -186,6 +212,7 @@ namespace Test
             ServiceState obj = (ServiceState)ser.ReadObject(stream);
             return obj.state == "listening";
         }
+        
 
 
         /*
@@ -275,6 +302,8 @@ namespace Test
             mciSendString(CommandString, null, 0, 0);
             CommandString = "play recsound";
             mciSendString(CommandString, null, 0, 0);
+
+
             Console.ReadKey();
 
             Console.ReadKey();
