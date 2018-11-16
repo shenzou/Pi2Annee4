@@ -57,8 +57,8 @@ namespace Test
         {
             Credentials cred = new Credentials();
             IamTokenData token = GetIAMToken(cred.STTApiKey);
-            
-            WebSocketTest(token);
+
+            WebSocketTest(token).Wait();
             
         }
 
