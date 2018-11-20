@@ -20,9 +20,8 @@ using System.Runtime.Serialization.Json;
 using System.Threading;
 using System.IO;
 using System.Runtime.Serialization;
-
-
-
+using NAudio;
+using NAudio.Wave;
 
 namespace Test
 {
@@ -35,15 +34,17 @@ namespace Test
         //Install-Package IBM.WatsonDeveloperCloud.NaturalLanguageUnderstanding.v1
         //Install-Package IBM.WatsonDeveloperCloud.SpeechToText.v1
         //Install-Package IBM.WatsonDeveloperCloud.ToneAnalyzer.v3
-        
+        //Install-Package NAudio -Version 1.8.5
+
 
         static void Main(string[] args)
         {
             
             NLU nluElement = SetupNLU(); //Création d'un élément Natural Language Understanding
+            RecordAndPlayAudio(); //Enregistrement d'un fichier audio du PC (FICHIER A CONVERTIR AVANT ENVOI)
             //testsApiNLU(nluElement); //Pour démontrer le fonctionnement de NLU
             SpeechToText(); //Envoi d'une requête speech to text
-            //RecordAndPlayAudio(); //Enregistrement d'un fichier audio du PC (FICHIER A CONVERTIR AVANT ENVOI)
+            
             DBManagement DB = new DBManagement(); //Gestion de la database
             //DB.AddUserLog("first test");
             Console.WriteLine("Dernière transcription: " + DB.LastVoiceTranscript()); //Affichage de la transcription Speech to text depuis la database
@@ -100,7 +101,8 @@ namespace Test
             ClientWebSocket clientWebSocket = new ClientWebSocket();
             clientWebSocket.Options.Proxy = null;
             clientWebSocket.Options.SetRequestHeader("Authorization", $"Bearer {token.AccessToken}");
-            Uri connection = new Uri($"wss://gateway-syd.watsonplatform.net/speech-to-text/api/v1/recognize");
+            
+            Uri connection = new Uri($"wss://gateway-syd.watsonplatform.net/speech-to-text/api/v1/recognize?model=fr-FR_BroadbandModel");
             try
             {
                 await clientWebSocket.ConnectAsync(connection, cts.Token);
@@ -264,24 +266,49 @@ namespace Test
             mciSendString("record recsound", "", 0, 0);
             Console.ReadKey();
 
-            mciSendString("save recsound record.wav", "", 0, 0); //Fichier sauvegardé dans bin/debug
+            mciSendString("save recsound recordTemp.wav", "", 0, 0); //Fichier sauvegardé dans bin/debug
             mciSendString("close recsound ", "", 0, 0);
             Console.WriteLine("Sauvergardee ");
             Console.ReadKey();
 
 
-            string FileName = "record.wav";
+            string FileName = "recordTemp.wav";
             string CommandString = "open " + "\"" + FileName + "\"" + " type waveaudio alias recsound";
             mciSendString(CommandString, null, 0, 0);
             CommandString = "play recsound";
             mciSendString(CommandString, null, 0, 0);
 
+            WaveFileReader reader = new NAudio.Wave.WaveFileReader("recordTemp.wav");
 
-            Console.ReadKey();
+            WaveFormat newFormat = new WaveFormat(16000, 16, 1);
 
-            Console.ReadKey();
+            WaveFormatConversionStream str = new WaveFormatConversionStream(newFormat, reader);
+
+            try
+            {
+                WaveFileWriter.CreateWaveFile("record.wav", str);
+                Console.WriteLine("Audio converted to 16Khz");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            finally
+            {
+                str.Close();
+            }
+
+            
+        
+
+
+        Console.ReadKey();
+
 
         }
+
+
+
 
         #endregion
     }
