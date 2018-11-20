@@ -40,13 +40,14 @@ namespace Test
         static void Main(string[] args)
         {
             
-            NLU nluElement = SetupNLU();
-            //testsApiNLU(nluElement);
-            SpeechToText();
-            //RecordAndPlayAudio();
-            DBManagement DB = new DBManagement();
+            NLU nluElement = SetupNLU(); //Création d'un élément Natural Language Understanding
+            //testsApiNLU(nluElement); //Pour démontrer le fonctionnement de NLU
+            SpeechToText(); //Envoi d'une requête speech to text
+            //RecordAndPlayAudio(); //Enregistrement d'un fichier audio du PC (FICHIER A CONVERTIR AVANT ENVOI)
+            DBManagement DB = new DBManagement(); //Gestion de la database
             //DB.AddUserLog("first test");
-            Console.WriteLine("Dernière transcription: " + DB.LastVoiceTranscript());
+            Console.WriteLine("Dernière transcription: " + DB.LastVoiceTranscript()); //Affichage de la transcription Speech to text depuis la database
+            ApiNLU(nluElement, DB.LastVoiceTranscript());
             Console.ReadKey();
         }
 
@@ -232,6 +233,13 @@ namespace Test
             string ServiceUrl = cred.NLUUrl;
             NLU nluElement = new NLU(IamApiKey, ServiceUrl, NLUService);
             return nluElement;
+        }
+
+        static void ApiNLU(NLU nlu, string text)
+        {
+            //var request = nlu.URLInfo(URL);
+            var request = nlu.TextInfo(text);
+            Console.WriteLine(JsonConvert.SerializeObject(request, Formatting.Indented));
         }
 
         static void testsApiNLU(NLU nlu)

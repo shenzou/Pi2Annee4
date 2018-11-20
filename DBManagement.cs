@@ -172,6 +172,7 @@ namespace Test
                     Console.WriteLine("Erreur lors de la lecture du dernier élement.");
                 }
             }
+            connection.Close();
             return text;
         }
 
