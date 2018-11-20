@@ -15,9 +15,11 @@ namespace Test
         private string uid;
         private string password;
         private string port;
+        private int userID;
 
-        public DBManagement()
+        public DBManagement(int userID)
         {
+            this.userID = userID;
             Initialize();
         }
 
@@ -86,7 +88,7 @@ namespace Test
             {
                 string dateTime = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
                 OpenConnection();
-                string request = "INSERT INTO PI2.userlog(userInput, dateTime) VALUES('" + log + "','" + dateTime + "'); ";
+                string request = "INSERT INTO PI2.userlog(userInput, dateTime, userID) VALUES('" + log + "','" + dateTime + "','" + userID + "'); ";
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = request;
                 MySqlDataReader reader;
@@ -109,7 +111,7 @@ namespace Test
             try
             {
                 OpenConnection();
-                string request = "INSERT INTO PI2.historyrequest(json) VALUES('" + json + "'); ";
+                string request = "INSERT INTO PI2.historyrequest(json, userID) VALUES('" + json + "','" + userID + "'); ";
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = request;
                 MySqlDataReader reader;
@@ -127,13 +129,13 @@ namespace Test
             }
         }
 
-        public void AddVoiceTranscript(string text)
+        public void AddVoiceTranscript(string text, string confidence)
         {
             try
             {
                 string dateTime = DateTime.Now.ToString("yyyy-MM-dd hh");
                 OpenConnection();
-                string request = "INSERT INTO PI2.voicetranscripted(text, date) VALUES('" + text + "','" + dateTime + "'); ";
+                string request = "INSERT INTO PI2.voicetranscripted(text, confidence, date, userID) VALUES('" + text + "'," + confidence + ",'" + dateTime + "','" + userID + "'); ";
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = request;
                 MySqlDataReader reader;
@@ -154,18 +156,21 @@ namespace Test
         public string LastVoiceTranscript()
         {
             OpenConnection();
-            string request = "SELECT text FROM voicetranscripted WHERE id=(SELECT MAX(id) FROM voicetranscripted);";
+            string request = "SELECT text, userID FROM voicetranscripted WHERE userID=" + this.userID +" and id=(SELECT MAX(id) FROM voicetranscripted);";
             MySqlCommand command = connection.CreateCommand();
             command.CommandText = request;
 
             MySqlDataReader reader;
             reader = command.ExecuteReader();
             string text = "";
+            string userID = "";
             while(reader.Read())
             {
                 try
                 {
                     text = reader.GetString(0);
+                    userID = reader.GetString(1);
+                    Console.WriteLine("Utilisateur: " + userID);
                 }
                 catch
                 {
