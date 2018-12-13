@@ -25,6 +25,8 @@ namespace Test
         //Install-Package IBM.WatsonDeveloperCloud.SpeechToText.v1
         //Install-Package IBM.WatsonDeveloperCloud.ToneAnalyzer.v3
         //Install-Package NAudio -Version 1.8.5
+        //Install-Package Whatsapp.NET -Version 1.2.2
+        //Install-Package Microsoft.AspNet.SignalR -Version 2.4.0
 
 
         static void Main(string[] args)
