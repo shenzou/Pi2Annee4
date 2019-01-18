@@ -17,6 +17,7 @@ namespace Test
         public string DBConnection;
         public string Dbport;
         public string STTApiKey;
+        public string GCloudApiKey;
 
         public Credentials()
         {
@@ -31,6 +32,7 @@ namespace Test
             DBConnection = data[1][5];
             Dbport = data[1][6];
             STTApiKey = data[1][7];
+            GCloudApiKey = data[1][8];
         }
 
 
