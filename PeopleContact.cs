@@ -37,10 +37,12 @@ namespace Test
 
             }
             */
+            /*
             if(waNum!=null && waPass!=null)
             {
                 LoginWhatsapp(waNum, waPass);
             }
+            */
             
         }
 

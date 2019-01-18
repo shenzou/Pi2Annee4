@@ -27,6 +27,7 @@ namespace Test
         //Install-Package NAudio -Version 1.8.5
         //Install-Package Whatsapp.NET -Version 1.2.2
         //Install-Package Microsoft.AspNet.SignalR -Version 2.4.0
+        //Install-Package PushSharp -Version 4.0.10
 
 
         static void Main(string[] args)
