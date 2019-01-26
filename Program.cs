@@ -37,9 +37,10 @@ namespace Test
             int userID = 211594;
             STT sttElement = new STT(userID); //Génération d'un élément de classe speech to text en fonction de l'ID utiisateur.
 
-            RecordAndPlayAudio(); //Enregistrement d'un fichier audio du PC
+            //RecordAndPlayAudio(); //Enregistrement d'un fichier audio du PC, A REGLER POUR RASPBERRY
             //testsApiNLU(nluElement); //Pour démontrer le fonctionnement de NLU
-            
+
+
             sttElement.SpeechToText(); //Envoi d'une requête speech to text
             
             DBManagement DB = new DBManagement(userID); //Gestion de la database
@@ -48,6 +49,8 @@ namespace Test
             ApiNLU(nluElement, DB.LastVoiceTranscript()); //Exécute la requête natural language understanding en fonction du dernier élément enregistré dans la DB.
             Console.ReadKey();
         }
+
+
 
         
         #region Speech To Text

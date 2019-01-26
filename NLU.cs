@@ -47,10 +47,16 @@ namespace Test
             };
 
 
+            try
+            {
+                var result = NLUService.Analyze(parameters);
+                return result;
+            }
+            catch
+            {
+                return null;
+            }
 
-            var result = NLUService.Analyze(parameters);
-            return result;
-            
         }
 
         public AnalysisResults URLInfo(string URL) //Analyse d'un site web avec NLU
